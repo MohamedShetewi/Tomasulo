@@ -1,0 +1,8 @@
+1- Tomasulo
+2- Instruction (not issued)
+        -Issued Instruction (ADD/SUB/MUL/DIV)
+        -Load/Store Instruction
+3- ReservationStation (All)
+4- Load Buffer
+5- Store Buffer
+4- Register File
