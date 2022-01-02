@@ -33,6 +33,17 @@ public class ReservationStation {
         return op;
     }
 
+    public String[] getArray(){
+        String[] arr;
+        try {
+           arr = new String[]{String.valueOf(id), String.valueOf(op), String.valueOf(V1), String.valueOf(V2), String.valueOf(Q1), String.valueOf(Q2)};
+        }catch (Exception e){
+            arr = new String[6];
+        }
+        return arr;
+
+    }
+
     public void setOp(Operation op) {
         this.op = op;
     }
