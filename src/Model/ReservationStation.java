@@ -1,25 +1,39 @@
 package Model;
 
 public class ReservationStation {
-    private String op;
+    private Operation op;
     private double V1;
     private double V2;
     private String Q1;
     private String Q2;
+    private int id;
 
-    public ReservationStation(String op, double v1, double v2, String q1, String q2) {
+    public ReservationStation(Operation op, double v1, double v2, String q1, String q2, int id) {
         this.op = op;
         V1 = v1;
         V2 = v2;
         Q1 = q1;
         Q2 = q2;
+        this.id = id;
     }
 
-    public String getOp() {
+    @Override
+    public String toString() {
+        return "ReservationStation{" +
+                "op=" + op +
+                ", V1=" + V1 +
+                ", V2=" + V2 +
+                ", Q1='" + Q1 + '\'' +
+                ", Q2='" + Q2 + '\'' +
+                ", id=" + id +
+                '}';
+    }
+
+    public Operation getOp() {
         return op;
     }
 
-    public void setOp(String op) {
+    public void setOp(Operation op) {
         this.op = op;
     }
 
@@ -53,5 +67,9 @@ public class ReservationStation {
 
     public void setQ2(String q2) {
         Q2 = q2;
+    }
+
+    public int getId() {
+        return id;
     }
 }

@@ -9,6 +9,14 @@ public class RegisterFileSlot {
         Q = q;
     }
 
+    @Override
+    public String toString() {
+        return "RegisterFileSlot{" +
+                "V=" + V +
+                ", Q='" + Q + '\'' +
+                '}';
+    }
+
     public double getV() {
         return V;
     }
