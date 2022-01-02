@@ -12,6 +12,7 @@ public class View extends JFrame {
     private final ArrayList<InstructionEntry> instructionEntries;
 
 
+
     public View() {
         super();
         setResizable(false);
@@ -33,6 +34,7 @@ public class View extends JFrame {
         addInstructionButton.addActionListener(e -> {
             addInstruction();
         });
+
         JButton printButton = new JButton("print");
         printButton.addActionListener(e -> {
             print();
@@ -45,6 +47,7 @@ public class View extends JFrame {
         repaint();
         revalidate();
     }
+
 
     private void setComponentView(JComponent component, int x, int y, int width, int height, boolean right) {
         Dimension dim = component.getPreferredSize();
