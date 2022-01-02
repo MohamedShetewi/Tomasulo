@@ -1,7 +1,7 @@
 package Model;
 
 public class Instruction {
-    private String op;
+    private Operation op;
     private String reg1;
     private String reg2;
     private String reg3;
@@ -10,18 +10,36 @@ public class Instruction {
     private int endExec;
     private int writeBack;
 
-    public Instruction(String op, String reg1, String reg2, String reg3) {
+    public Instruction(Operation op, String reg1, String reg2, String reg3) {
         this.op = op;
         this.reg1 = reg1;
         this.reg2 = reg2;
         this.reg3 = reg3;
+        issued = -1;
+        startExec = -1;
+        endExec = -1;
+        writeBack = -1;
     }
 
-    public String getOp() {
+    @Override
+    public String toString() {
+        return "Instruction{" +
+                "op=" + op +
+                ", reg1='" + reg1 + '\'' +
+                ", reg2='" + reg2 + '\'' +
+                ", reg3='" + reg3 + '\'' +
+                ", issued=" + issued +
+                ", startExec=" + startExec +
+                ", endExec=" + endExec +
+                ", writeBack=" + writeBack +
+                '}';
+    }
+
+    public Operation getOp() {
         return op;
     }
 
-    public void setOp(String op) {
+    public void setOp(Operation op) {
         this.op = op;
     }
 
