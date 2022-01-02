@@ -3,6 +3,8 @@ package Model;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import Model.Instruction;
+
 public class Tables {
     private ArrayList<Instruction> instructions;
     private HashMap<String,RegisterFileSlot> registerFile;
