@@ -1,18 +1,12 @@
 package Model;
 
-public class StoreInstruction {
-    private int address;
+public class RegisterFileSlot {
     private double V;
     private String Q;
 
-    public StoreInstruction(int address, double v, String q) {
-        this.address = address;
+    public RegisterFileSlot(double v, String q) {
         V = v;
         Q = q;
-    }
-
-    public int getAddress() {
-        return address;
     }
 
     public double getV() {

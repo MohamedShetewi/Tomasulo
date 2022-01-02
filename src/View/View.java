@@ -20,7 +20,7 @@ public class View extends JFrame {
         setLayout(null);
         instructionEntries = new ArrayList<InstructionEntry>();
         instructionSection = new JPanel();
-        GridLayout gridLayout = new GridLayout(0,3);
+        GridLayout gridLayout = new GridLayout(0,4);
         gridLayout.setHgap(7);
         gridLayout.setVgap(7);
         instructionSection.setLayout(gridLayout);
@@ -41,7 +41,6 @@ public class View extends JFrame {
         setComponentView(addInstructionButton, 700, 50, 20, 10, false);
         setComponentView(printButton, 700, 90, 20, 10, false);
 
-
         setVisible(true);
         repaint();
         revalidate();
@@ -55,25 +54,16 @@ public class View extends JFrame {
     }
 
     private void addInstruction() {
+        JComboBox jComboBox = new JComboBox(instructions);
+        JTextPane reg1 = new JTextPane();
+        JTextPane reg2 = new JTextPane();
+        JTextPane reg3 = new JTextPane();
+        instructionSection.add(jComboBox);
+        instructionSection.add(reg1);
+        instructionSection.add(reg2);
+        instructionSection.add(reg3);
+        instructionEntries.add(new InstructionEntry(jComboBox, reg1, reg2,reg3));
 
-        new SwingWorker<>() {
-            @Override
-            protected Object doInBackground() {
-                System.out.println("Entered");
-
-
-                JComboBox jComboBox = new JComboBox(instructions);
-                jComboBox.getSize().setSize(5,5 );
-                JTextPane reg1 = new JTextPane();
-                JTextPane reg2 = new JTextPane();
-                instructionSection.add(jComboBox);
-                instructionSection.add(reg1);
-                instructionSection.add(reg2);
-                instructionEntries.add(new InstructionEntry(jComboBox, reg1, reg2));
-                return null;
-            }
-
-        }.execute();
         repaint();
         revalidate();
     }
@@ -81,8 +71,7 @@ public class View extends JFrame {
     private void print(){
         for(InstructionEntry i : instructionEntries)
         {
-            System.out.println(instructions[i.jComboBox.getSelectedIndex()]);
-            System.out.println(i.register1.getText());
+            System.out.println(instructions[i.jComboBox.getSelectedIndex()]+" "+i.register1.getText()+" "+i.register2.getText()+" "+i.register3.getText());
         }
     }
 }
