@@ -16,10 +16,17 @@ public class Tables {
     private StoreInstruction[] storeBuffer;
     private ReservationStation[] addSubStations;
     private ReservationStation[] mulDivStations;
+    public boolean isFinished = false;
+
 
     private int lastIssued;
     private int curCycle;
     private int addLatency;
+
+    public int getCurCycle() {
+        return curCycle;
+    }
+
     private int subLatency;
     private int mulLatency;
     private int divLatency;
@@ -43,6 +50,12 @@ public class Tables {
         for (int i = 0; i < 32; i++) {
             registerFile.put("F" + i, new RegisterFileSlot(-1, ""));
         }
+        registerFile.put("F20", new RegisterFileSlot(1.99, ""));
+        registerFile.put("F0", new RegisterFileSlot(1, ""));
+        registerFile.put("F1", new RegisterFileSlot(1, ""));
+        registerFile.put("F2", new RegisterFileSlot(1, ""));
+        memory.put(10, 1.2);
+        memory.put(11, 1.3);
     }
 
     public void setAddLatency(int addLatency) {
@@ -91,21 +104,21 @@ public class Tables {
         }
     }
 
+
     public void next() {
         curCycle++;
         history.add(getCurrentState());
-
-        boolean finished = true;
+        isFinished = true;
         for (Instruction instruction : instructions) {
             if (instruction.getWriteBack() == -1) {
-                finished = false;
+                isFinished = false;
                 break;
             }
         }
 
-        if (finished)
-            System.exit(0);
-
+        if (isFinished) {
+            return;
+        }
         if (lastIssued != instructions.size() - 1) {
             // Try to issue new instruction
             Instruction toBeIssued = instructions.get(lastIssued + 1);
@@ -425,13 +438,14 @@ public class Tables {
 
     private String getTag(int id, Object[] station, String prefix) {
         for (int i = 0; i < station.length; i++) {
-            if (prefix.equals("A") || prefix.equals("M")) {
-                if (((ReservationStation) station[i]).getId() == id)
-                    return prefix + "" + (i + 1);
-            } else if (prefix.equals("L")) {
-                if (((LoadInstruction) station[i]).getId() == id)
-                    return prefix + "" + (i + 1);
-            }
+            if (station[i] != null)
+                if (prefix.equals("A") || prefix.equals("M")) {
+                    if (((ReservationStation) station[i]).getId() == id)
+                        return prefix + "" + (i + 1);
+                } else if (prefix.equals("L")) {
+                    if (((LoadInstruction) station[i]).getId() == id)
+                        return prefix + "" + (i + 1);
+                }
         }
         return "";
     }
@@ -462,7 +476,7 @@ public class Tables {
         return -1;
     }
 
-    private void printState() {
+    public void printState() {
         System.out.println("Cycle " + curCycle);
         System.out.println();
         System.out.println("=========Instruction Queue=========");
@@ -551,6 +565,7 @@ public class Tables {
         return state;
     }
 
+
     public void setInstructions(ArrayList<Instruction> instructions) {
         this.instructions = instructions;
     }
@@ -611,12 +626,22 @@ public class Tables {
         return history;
     }
 
+    public void runTomasulo() {
+
+        while (!isFinished) {
+            System.out.println("runTomasulo");
+            printState();
+            next();
+        }
+        System.out.println("Finished");
+    }
+
     public static void main(String[] args) throws IOException {
         Tables tables = new Tables(2, 2, 3, 3, 1, 1);
         tables.registerFile.put("F20", new RegisterFileSlot(1.99, ""));
-//        tables.registerFile.put("F0", new RegisterFileSlot(-1, ""));
-//        tables.registerFile.put("F1", new RegisterFileSlot(-1, ""));
-//        tables.registerFile.put("F2", new RegisterFileSlot(-1, ""));
+        tables.registerFile.put("F0", new RegisterFileSlot(-1, ""));
+        tables.registerFile.put("F1", new RegisterFileSlot(-1, ""));
+        tables.registerFile.put("F2", new RegisterFileSlot(-1, ""));
         tables.memory.put(10, 1.2);
         tables.memory.put(11, 1.3);
         File file = new File("src/Model/instructions.txt");
@@ -648,6 +673,5 @@ public class Tables {
             tables.printState();
             tables.next();
         }
-
     }
 }

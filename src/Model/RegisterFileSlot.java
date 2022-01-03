@@ -1,12 +1,18 @@
 package Model;
 
-public class RegisterFileSlot {
+public class RegisterFileSlot implements Cloneable{
     private double V;
     private String Q;
 
     public RegisterFileSlot(double v, String q) {
         V = v;
         Q = q;
+    }
+
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        RegisterFileSlot r = new RegisterFileSlot(V, Q);
+        return r;
     }
 
     @Override

@@ -1,6 +1,6 @@
 package Model;
 
-public class ReservationStation {
+public class ReservationStation implements Cloneable{
     private Operation op;
     private double V1;
     private double V2;
@@ -15,6 +15,11 @@ public class ReservationStation {
         Q1 = q1;
         Q2 = q2;
         this.id = id;
+    }
+
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        return new ReservationStation(op, V1, V2, Q1, Q2, id);
     }
 
     @Override

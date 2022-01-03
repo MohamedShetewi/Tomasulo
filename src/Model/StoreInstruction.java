@@ -1,6 +1,6 @@
 package Model;
 
-public class StoreInstruction {
+public class StoreInstruction implements Cloneable{
     private int address, id;
     private double V;
     private String Q;
@@ -10,6 +10,11 @@ public class StoreInstruction {
         V = v;
         Q = q;
         this.id = id;
+    }
+
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        return new StoreInstruction(address, V, Q, id);
     }
 
     @Override

@@ -1,6 +1,6 @@
 package Model;
 
-public class Instruction {
+public class Instruction implements Cloneable{
     private Operation op;
     private String reg1;
     private String reg2;
@@ -9,6 +9,17 @@ public class Instruction {
     private int startExec;
     private int endExec;
     private int writeBack;
+
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        Object clone = super.clone();
+        Instruction i = new Instruction(op, reg1, reg2, reg3);
+        i.issued = issued;
+        i.startExec = startExec;
+        i.endExec = endExec;
+        i.writeBack = writeBack;
+        return i;
+    }
 
     public Instruction(Operation op, String reg1, String reg2, String reg3) {
         this.op = op;
