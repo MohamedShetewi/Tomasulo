@@ -1,9 +1,12 @@
 package Model;
 
-import java.io.*;
-import java.util.*;
-
-import Model.Instruction;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.StringTokenizer;
 
 public class Tables {
     private ArrayList<Instruction> instructions;
@@ -16,14 +19,55 @@ public class Tables {
 
     private int lastIssued;
     private int curCycle;
-    private final int addLatency;
-    private final int subLatency;
-    private final int mulLatency;
-    private final int divLatency;
-    private final int ldLatency;
-    private final int stLatency;
+    private int addLatency;
+    private int subLatency;
+    private int mulLatency;
+    private int divLatency;
+    private int ldLatency;
+    private int stLatency;
 
     private final ArrayList<Tables> history;
+
+    public Tables() {
+        this.instructions = new ArrayList<>();
+        this.loadBuffer = new LoadInstruction[3];
+        this.storeBuffer = new StoreInstruction[3];
+        this.registerFile = new HashMap<>();
+        this.addSubStations = new ReservationStation[3];
+        this.mulDivStations = new ReservationStation[3];
+        this.memory = new HashMap<>();
+
+        lastIssued = -1;
+        curCycle = 0;
+        history = new ArrayList<>();
+        for (int i = 0; i < 32; i++) {
+            registerFile.put("F" + i, new RegisterFileSlot(-1, ""));
+        }
+    }
+
+    public void setAddLatency(int addLatency) {
+        this.addLatency = addLatency;
+    }
+
+    public void setSubLatency(int subLatency) {
+        this.subLatency = subLatency;
+    }
+
+    public void setMulLatency(int mulLatency) {
+        this.mulLatency = mulLatency;
+    }
+
+    public void setDivLatency(int divLatency) {
+        this.divLatency = divLatency;
+    }
+
+    public void setLdLatency(int ldLatency) {
+        this.ldLatency = ldLatency;
+    }
+
+    public void setStLatency(int stLatency) {
+        this.stLatency = stLatency;
+    }
 
     public Tables(int addLatency, int subLatency, int mulLatency, int divLatency, int ldLatency, int stLatency) {
         this.instructions = new ArrayList<>();
@@ -42,7 +86,7 @@ public class Tables {
         lastIssued = -1;
         curCycle = 0;
         history = new ArrayList<>();
-        for (int i = 0; i < 32; i++){
+        for (int i = 0; i < 32; i++) {
             registerFile.put("F" + i, new RegisterFileSlot(-1, ""));
         }
     }
@@ -52,7 +96,7 @@ public class Tables {
         history.add(getCurrentState());
 
         boolean finished = true;
-        for (Instruction instruction: instructions){
+        for (Instruction instruction : instructions) {
             if (instruction.getWriteBack() == -1) {
                 finished = false;
                 break;
@@ -276,11 +320,11 @@ public class Tables {
                 if (instruction == toWriteBack)
                     id = i;
             }
-            if (toWriteBack.getOp() == Operation.ST){
+            if (toWriteBack.getOp() == Operation.ST) {
                 double result = -1;
-                for (StoreInstruction storeInstruction: storeBuffer){
+                for (StoreInstruction storeInstruction : storeBuffer) {
                     if (storeInstruction != null)
-                        if (storeInstruction.getId() == id){
+                        if (storeInstruction.getId() == id) {
                             result = storeInstruction.getV();
                         }
                 }
@@ -298,36 +342,36 @@ public class Tables {
         }
 
         //Remove finished instructions
-        for (int i = 0; i < addSubStations.length; i++){
+        for (int i = 0; i < addSubStations.length; i++) {
             ReservationStation station = addSubStations[i];
-            if (station != null){
+            if (station != null) {
                 if (instructions.get(station.getId()).getWriteBack() != -1
-                && instructions.get(station.getId()).getWriteBack() < curCycle)
+                        && instructions.get(station.getId()).getWriteBack() < curCycle)
                     addSubStations[i] = null;
             }
         }
 
-        for (int i = 0; i < mulDivStations.length; i++){
+        for (int i = 0; i < mulDivStations.length; i++) {
             ReservationStation station = mulDivStations[i];
-            if (station != null){
+            if (station != null) {
                 if (instructions.get(station.getId()).getWriteBack() != -1
                         && instructions.get(station.getId()).getWriteBack() < curCycle)
                     mulDivStations[i] = null;
             }
         }
 
-        for (int i = 0; i < loadBuffer.length; i++){
+        for (int i = 0; i < loadBuffer.length; i++) {
             LoadInstruction loadInstruction = loadBuffer[i];
-            if (loadInstruction != null){
+            if (loadInstruction != null) {
                 if (instructions.get(loadInstruction.getId()).getWriteBack() != -1
                         && instructions.get(loadInstruction.getId()).getWriteBack() < curCycle)
                     loadBuffer[i] = null;
             }
         }
 
-        for (int i = 0; i < storeBuffer.length; i++){
+        for (int i = 0; i < storeBuffer.length; i++) {
             StoreInstruction storeInstruction = storeBuffer[i];
-            if (storeInstruction != null){
+            if (storeInstruction != null) {
                 if (instructions.get(storeInstruction.getId()).getWriteBack() != -1
                         && instructions.get(storeInstruction.getId()).getWriteBack() < curCycle)
                     storeBuffer[i] = null;
@@ -418,35 +462,35 @@ public class Tables {
         return -1;
     }
 
-    private void printState(){
+    private void printState() {
         System.out.println("Cycle " + curCycle);
         System.out.println();
         System.out.println("=========Instruction Queue=========");
-        for (Instruction instruction: instructions){
+        for (Instruction instruction : instructions) {
             System.out.println(instruction);
         }
         System.out.println();
 
         System.out.println("=========ADD/SUB Station=========");
-        for (ReservationStation reservationStation: addSubStations){
+        for (ReservationStation reservationStation : addSubStations) {
             System.out.println(reservationStation);
         }
         System.out.println();
 
         System.out.println("=========MUL/DIV Station=========");
-        for (ReservationStation reservationStation: mulDivStations){
+        for (ReservationStation reservationStation : mulDivStations) {
             System.out.println(reservationStation);
         }
         System.out.println();
 
         System.out.println("=========LD Buffer=========");
-        for (LoadInstruction loadInstruction: loadBuffer){
+        for (LoadInstruction loadInstruction : loadBuffer) {
             System.out.println(loadInstruction);
         }
         System.out.println();
 
         System.out.println("=========ST Buffer=========");
-        for (StoreInstruction storeInstruction: storeBuffer){
+        for (StoreInstruction storeInstruction : storeBuffer) {
             System.out.println(storeInstruction);
         }
         System.out.println();
@@ -458,7 +502,7 @@ public class Tables {
         System.out.println();
     }
 
-    private void function(int...x){
+    private void function(int... x) {
 
     }
 
@@ -568,7 +612,7 @@ public class Tables {
     }
 
     public static void main(String[] args) throws IOException {
-        Tables tables = new Tables(2, 2, 3, 3 ,1, 1);
+        Tables tables = new Tables(2, 2, 3, 3, 1, 1);
         tables.registerFile.put("F20", new RegisterFileSlot(1.99, ""));
 //        tables.registerFile.put("F0", new RegisterFileSlot(-1, ""));
 //        tables.registerFile.put("F1", new RegisterFileSlot(-1, ""));
@@ -577,7 +621,7 @@ public class Tables {
         tables.memory.put(11, 1.3);
         File file = new File("src/Model/instructions.txt");
         BufferedReader br = new BufferedReader(new FileReader(file));
-        while (br.ready()){
+        while (br.ready()) {
             String instruction = br.readLine();
             StringTokenizer st = new StringTokenizer(instruction);
             String floatOp = st.nextToken();
@@ -590,7 +634,7 @@ public class Tables {
                     : Operation.ST;
             StringTokenizer st2 = new StringTokenizer(st.nextToken(), ",");
             String reg1 = "", reg2 = "", reg3 = "";
-            if (op != Operation.LD && op != Operation.ST){
+            if (op != Operation.LD && op != Operation.ST) {
                 reg1 = st2.nextToken();
                 reg2 = st2.nextToken();
                 reg3 = st2.nextToken();
@@ -600,7 +644,7 @@ public class Tables {
             }
             tables.instructions.add(new Instruction(op, reg1, reg2, reg3));
         }
-        for (;;){
+        for (; ; ) {
             tables.printState();
             tables.next();
         }

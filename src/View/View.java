@@ -8,6 +8,7 @@ import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 
@@ -19,8 +20,11 @@ public class View extends JFrame {
     private final ArrayList<InstructionEntry> instructionEntries;
     private JTable loadBufferTable;
     private JTable storeBufferTable;
+    private boolean isSubmitted = false;
 
-
+    private JButton submitButton;
+    private JButton nextButton;
+    private JButton prevButton;
     private int divLatency = 0;
     private int mulLatency = 0;
     private int addLatency = 0;
@@ -37,42 +41,43 @@ public class View extends JFrame {
         setLayout(null);
         instructionEntries = new ArrayList<InstructionEntry>();
         instructionSection = new JPanel();
-
+        submitButton = new JButton("SUBMIT");
+        nextButton = new JButton("Next");
+        prevButton = new JButton("Previous");
         SwingUtilities.invokeLater(() -> {
-            setInstructionSection();
+            setInstructionSection(new ArrayList<>());
             setLatenciesSection();
 
-
-            //testing
-            LoadInstruction l = new LoadInstruction(5, 1);
-            LoadInstruction l1 = new LoadInstruction(5, 1);
-            LoadInstruction l2 = new LoadInstruction(5, 1);
-            setLoadBuffer(new LoadInstruction[]{l, l1, l2});
-
-            //testing
-            StoreInstruction s1 = null;
-            StoreInstruction s2 = null;
-            StoreInstruction s3 = null;
-
-            setStoreBuffer(new StoreInstruction[]{s1, s2, s3});
-
-            //testing
-            ReservationStation r1 = new ReservationStation(Operation.ADD, 1.5, 1.3, "A5", "A+", 7);
-            ReservationStation r2 = new ReservationStation(Operation.ADD, 1.5, 1.3, "A5", "A+", 6);
-            ReservationStation r3 = null;
-
-            setReservationStations(new ReservationStation[]{r1, r2, r3}, new ReservationStation[]{null, null, null});
-
-
-
-            //testing
-            HashMap<String, RegisterFileSlot> registerFile = new HashMap<>();
-            for (int i = 0; i < 32; i++){
-                registerFile.put("F" + i, new RegisterFileSlot(-1, ""));
-            }
-
-            setRegFile(registerFile);
-
+            setSubmitButtons();
+//            //testing
+//            LoadInstruction l = new LoadInstruction(5, 1);
+//            LoadInstruction l1 = new LoadInstruction(5, 1);
+//            LoadInstruction l2 = new LoadInstruction(5, 1);
+//            setLoadBuffer(new LoadInstruction[]{l, l1, l2});
+//
+//            //testing
+//            StoreInstruction s1 = null;
+//            StoreInstruction s2 = null;
+//            StoreInstruction s3 = null;
+//
+//            setStoreBuffer(new StoreInstruction[]{s1, s2, s3});
+//
+//            //testing
+//            ReservationStation r1 = new ReservationStation(Operation.ADD, 1.5, 1.3, "A5", "A+", 7);
+//            ReservationStation r2 = new ReservationStation(Operation.ADD, 1.5, 1.3, "A5", "A+", 6);
+//            ReservationStation r3 = null;
+//
+//            setReservationStations(new ReservationStation[]{r1, r2, r3}, new ReservationStation[]{null, null, null});
+//
+//
+//            //testing
+//            HashMap<String, RegisterFileSlot> registerFile = new HashMap<>();
+//            for (int i = 0; i < 32; i++) {
+//                registerFile.put("F" + i, new RegisterFileSlot(-1, ""));
+//            }
+//
+//            setRegFile(registerFile);
+//            setCycles(55);
         });
 
         setVisible(true);
@@ -80,7 +85,75 @@ public class View extends JFrame {
         revalidate();
     }
 
+    public void setSubmitted(boolean submitted) {
+        isSubmitted = submitted;
+    }
 
+    public boolean isSubmitted() {
+        return isSubmitted;
+    }
+
+    public JButton getSubmitButton() {
+        return submitButton;
+    }
+
+    public JButton getNextButton() {
+        return nextButton;
+    }
+
+    public JButton getPrevButton() {
+        return prevButton;
+    }
+
+    public int getDivLatency() {
+        return divLatency;
+    }
+
+    public int getMulLatency() {
+        return mulLatency;
+    }
+
+    public int getAddLatency() {
+        return addLatency;
+    }
+
+    public int getSubLatency() {
+        return subLatency;
+    }
+
+    public int getLwLatency() {
+        return lwLatency;
+    }
+
+    public int getSwLatency() {
+        return swLatency;
+    }
+
+    private void setSubmitButtons() {
+        if (isSubmitted) {
+            nextButton.setBackground(new Color(255,255,255));
+            prevButton.setBackground(new Color(255,255,255));
+            new SwingWorker<>(){
+
+                @Override
+                protected Object doInBackground() throws Exception {
+                    setComponentView(prevButton, 700, 300, 50, 10, false);
+                    setComponentView(nextButton, 900, 300, 50, 10, false);
+                    return null;
+                }
+            }.execute();
+        } else {
+            submitButton.setBackground(new Color(255,255,255));
+            new SwingWorker<>(){
+
+                @Override
+                protected Object doInBackground() throws Exception {
+                    setComponentView(submitButton, 900, 300, 50, 10, false);
+                    return null;
+                }
+            }.execute();
+        }
+    }
 
     private void setReservationStations(ReservationStation[] addReservationStation, ReservationStation[] mulReservationStation) {
 
@@ -107,7 +180,6 @@ public class View extends JFrame {
             protected Object doInBackground() {
 
 
-
                 JTable addRes = new JTable(addData, columns);
                 JTable mulRes = new JTable(mulData, columns);
                 JTableHeader addHeader = addRes.getTableHeader();
@@ -129,7 +201,7 @@ public class View extends JFrame {
         }.execute();
 
 
-        new SwingWorker<>(){
+        new SwingWorker<>() {
 
             @Override
             protected Object doInBackground() {
@@ -146,19 +218,34 @@ public class View extends JFrame {
         revalidate();
     }
 
-    private void setRegFile(HashMap<String, RegisterFileSlot> regFile)
-    {
+    private void setCycles(int cycle) {
+        JLabel cycleLabel = new JLabel("Cycle " + cycle);
+        new SwingWorker<>() {
+
+            @Override
+            protected Object doInBackground() throws Exception {
+                cycleLabel.setFont(new Font("", Font.BOLD, 25));
+                cycleLabel.setBounds(500, -70,
+                        400, 200);
+                add(cycleLabel);
+                /*setComponentView(cycleLabel, 500, 350, 100,100, false);*/
+                return null;
+            }
+        }.execute();
+//        SwingUtilities.invokeLater(() -> setComponentView(cycleLabel, 500, 350, 100,100, false));
+    }
+
+    private void setRegFile(HashMap<String, RegisterFileSlot> regFile) {
         String[] col = {"Name", "Q", "V"};
         String[][] data = new String[32][3];
 
-        for(int i = 0; i < 32 ;i++)
-        {
+        for (int i = 0; i < 32; i++) {
             data[i][0] = "F" + i;
-            data[i][1] = regFile.get("F"+i).getQ();
-            data[i][2] = String.valueOf(regFile.get("F"+i).getV());
+            data[i][1] = regFile.get("F" + i).getQ();
+            data[i][2] = String.valueOf(regFile.get("F" + i).getV());
         }
 
-        new SwingWorker<>(){
+        new SwingWorker<>() {
 
             @Override
             protected Object doInBackground() {
@@ -171,20 +258,20 @@ public class View extends JFrame {
                 panel.add(jTable, BorderLayout.CENTER);
 
                 JScrollPane jScrollPane = new JScrollPane(panel);
-                jScrollPane.setBounds(50, 350, 300, 350);
+                jScrollPane.setBounds(50, 450, 300, 350);
                 add(jScrollPane);
 
                 return null;
             }
         }.execute();
 
-        new SwingWorker<>(){
+        new SwingWorker<>() {
 
             @Override
             protected Object doInBackground() {
 
                 JLabel label = new JLabel("RegisterFile");
-                setComponentView(label, 50, 300, 35,56, false);
+                setComponentView(label, 50, 400, 35, 56, false);
 
                 return null;
             }
@@ -207,7 +294,7 @@ public class View extends JFrame {
             }
         }
         JLabel loadBufferLabel = new JLabel("Load Buffers");
-        setComponentView(loadBufferLabel, 500, 325, 100, 3, false);
+        setComponentView(loadBufferLabel, 50, 325, 100, 3, false);
 
         new SwingWorker<>() {
             @Override
@@ -218,7 +305,7 @@ public class View extends JFrame {
                 JPanel panel = new JPanel(new BorderLayout());
                 panel.add(header, BorderLayout.NORTH);
                 panel.add(loadBufferTable, BorderLayout.CENTER);
-                setComponentView(panel, 500, 350, 100, 3, false);
+                setComponentView(panel, 50, 350, 100, 3, false);
 
                 return null;
             }
@@ -271,22 +358,63 @@ public class View extends JFrame {
         revalidate();
     }
 
-    private void setInstructionSection() {
-        GridLayout gridLayout = new GridLayout(0, 4);
-        gridLayout.setHgap(7);
-        gridLayout.setVgap(7);
-        instructionSection.setLayout(gridLayout);
-        JScrollPane jsp = new JScrollPane(instructionSection);
-        setComponentView(jsp, 50, 50, 500, 200, false);
+    private void setInstructionSection(ArrayList<Instruction> instructionArrayList) {
         JLabel instructionLabel = new JLabel("Instructions");
         setComponentView(instructionLabel, 50, 8, 50, 50, false);
+        if (isSubmitted) {
+            String[] columns = {"Operation", "Register1", "Register 2", "Register 3", "Issue Time", "Start Time", "End Time", "Write Back"};
+            String[][] data = new String[instructionArrayList.size()][8];
 
-        JButton addInstructionButton = new JButton("+Add Instruction");
-        addInstructionButton.setBackground(new Color(255, 255, 255));
-        addInstructionButton.addActionListener(e -> {
-            addInstruction();
-        });
-        setComponentView(addInstructionButton, 575, 75, 20, 10, false);
+            for (int i = 0; i < instructionArrayList.size(); i++) {
+                Instruction curInstruction = instructionArrayList.get(i);
+                Arrays.fill(data[i], "-");
+                data[i][0] = String.valueOf(curInstruction.getOp());
+                data[i][1] = String.valueOf(curInstruction.getReg1());
+                data[i][2] = String.valueOf(curInstruction.getReg2());
+                data[i][3] = String.valueOf(curInstruction.getReg3());
+                data[i][4] = String.valueOf(curInstruction.getIssued());
+                data[i][5] = String.valueOf(curInstruction.getStartExec());
+                data[i][6] = String.valueOf(curInstruction.getEndExec());
+                data[i][7] = String.valueOf(curInstruction.getWriteBack());
+                for (int j = 0; j < 8; j++)
+                    if (data[i][j].equals("-1")) data[i][j] = "-";
+            }
+
+            JTable jTable = new JTable(data, columns);
+            JTableHeader header = jTable.getTableHeader();
+
+            JPanel panel = new JPanel(new BorderLayout());
+            panel.add(header, BorderLayout.NORTH);
+            panel.add(jTable, BorderLayout.CENTER);
+
+            new SwingWorker<>() {
+
+                @Override
+                protected Object doInBackground() throws Exception {
+                    setComponentView(panel, 50, 50, 500, 200, false);
+                    return null;
+                }
+            }.execute();
+
+        } else {
+            int columns = 4;
+            GridLayout gridLayout = new GridLayout(0, columns);
+            gridLayout.setHgap(7);
+            gridLayout.setVgap(7);
+            instructionSection.setLayout(gridLayout);
+
+            JScrollPane jsp = new JScrollPane(instructionSection);
+            setComponentView(jsp, 50, 50, 500, 200, false);
+
+
+            JButton addInstructionButton = new JButton("+Add Instruction");
+            addInstructionButton.setBackground(new Color(255, 255, 255));
+            addInstructionButton.addActionListener(e -> addInstruction());
+
+
+            setComponentView(addInstructionButton, 575, 75, 20, 10, false);
+        }
+
     }
 
 
@@ -439,4 +567,18 @@ public class View extends JFrame {
             System.out.println(instructions[i.jComboBox.getSelectedIndex()] + " " + i.register1.getText() + " " + i.register2.getText() + " " + i.register3.getText());
         }
     }
+
+
+    
+
+    public ArrayList<Instruction> getInstructions(){
+        ArrayList<Instruction> instructionArrayList  = new ArrayList<>();
+
+        for(InstructionEntry i : instructionEntries);
+//            instructionArrayList.add(new Instruction());
+
+        return instructionArrayList;
+    }
+
+
 }
