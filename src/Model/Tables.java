@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.StringTokenizer;
 
@@ -105,7 +106,7 @@ public class Tables {
     }
 
 
-    public void next() {
+    public void next() throws CloneNotSupportedException {
         curCycle++;
         history.add(getCurrentState());
         isFinished = true;
@@ -552,18 +553,54 @@ public class Tables {
         return -1;
     }
 
-    public Tables getCurrentState() {
-        Tables state = new Tables(addLatency, subLatency, mulLatency, divLatency, ldLatency, stLatency);
-        state.setAddSubStations(this.addSubStations.clone());
-        state.setInstructions((ArrayList<Instruction>) this.instructions.clone());
-        state.setMemory((HashMap<Integer, Double>) this.memory.clone());
-        state.setLoadBuffer(this.loadBuffer.clone());
-        state.setMulDivStations(this.mulDivStations.clone());
-        state.setRegisterFile((HashMap<String, RegisterFileSlot>) this.registerFile.clone());
-        state.setStoreBuffer(this.getStoreBuffer().clone());
+    public Tables getCurrentState() throws CloneNotSupportedException {
+            Tables state = new Tables(addLatency, subLatency, mulLatency, divLatency, ldLatency, stLatency);
+            state.setAddSubStations(clone(addSubStations));
+            state.setInstructions(clone(instructions));
+            state.setMemory((HashMap<Integer, Double>) this.memory.clone());
+            state.setLoadBuffer(clone(loadBuffer));
+            state.setMulDivStations(clone(mulDivStations));
+            state.setRegisterFile(clone(registerFile));
+            state.setStoreBuffer(clone(storeBuffer));
+            return state;
 
-        return state;
     }
+
+    private ArrayList<Instruction> clone(ArrayList<Instruction> instructions) throws CloneNotSupportedException {
+        ArrayList<Instruction> cloned=new ArrayList<>();
+        for(Instruction i:instructions)
+            cloned.add(i==null?null:(Instruction) i.clone());
+        return cloned;
+    }
+
+    private LoadInstruction[] clone(LoadInstruction[] loadBuffer) throws CloneNotSupportedException {
+        LoadInstruction[] clone=new LoadInstruction[loadBuffer.length];
+        for(int i=0;i<loadBuffer.length;i++)
+            clone[i]= loadBuffer[i]==null?null:(LoadInstruction) loadBuffer[i].clone();
+        return clone;
+    }
+
+    private ReservationStation[] clone(ReservationStation[] mulDivStations) throws CloneNotSupportedException {
+        ReservationStation[] clone=new ReservationStation[mulDivStations.length];
+        for(int i=0;i<mulDivStations.length;i++)
+            clone[i]=mulDivStations[i]==null?null: (ReservationStation) mulDivStations[i].clone();
+        return clone;
+    }
+
+    private HashMap<String, RegisterFileSlot> clone(HashMap<String, RegisterFileSlot> registerFile) throws CloneNotSupportedException {
+        HashMap<String,RegisterFileSlot> cloned=new HashMap<>();
+        for(String s:registerFile.keySet())
+            cloned.put(s, (RegisterFileSlot) registerFile.get(s).clone());
+        return cloned;
+    }
+
+    public StoreInstruction[] clone(StoreInstruction[] toBeCloned) throws CloneNotSupportedException {
+        StoreInstruction[] clone=new StoreInstruction[toBeCloned.length];
+        for(int i=0;i<toBeCloned.length;i++)
+            clone[i]=toBeCloned[i]==null?null: (StoreInstruction) toBeCloned[i].clone();
+        return clone;
+    }
+
 
 
     public void setInstructions(ArrayList<Instruction> instructions) {
@@ -626,7 +663,7 @@ public class Tables {
         return history;
     }
 
-    public void runTomasulo() {
+    public void runTomasulo() throws CloneNotSupportedException {
 
         while (!isFinished) {
             System.out.println("runTomasulo");
@@ -636,7 +673,7 @@ public class Tables {
         System.out.println("Finished");
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, CloneNotSupportedException {
         Tables tables = new Tables(2, 2, 3, 3, 1, 1);
         tables.registerFile.put("F20", new RegisterFileSlot(1.99, ""));
         tables.registerFile.put("F0", new RegisterFileSlot(-1, ""));
